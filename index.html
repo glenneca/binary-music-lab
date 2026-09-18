@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Binary MIDI Music Lab — 5 Octaves</title>
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{max-width:1180px;margin:auto;padding:26px;background:#f6f6f6;color:#171717}
+h1{margin-bottom:4px}.subtitle{margin-top:0;font-size:1.1rem}
+.idea,section{background:#fff;border-radius:12px;padding:18px;margin:20px 0}.idea{border:2px solid #222}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}select,button,textarea{font:inherit}
+select,button{padding:9px 12px}.keyboard{display:grid;grid-template-columns:repeat(7,1fr);gap:9px;margin-top:15px}
+.note{background:#fff;border:2px solid #222;border-radius:10px;padding:12px 5px;cursor:pointer;min-height:100px}
+.note.accidental{background:#222;color:#fff}.note:hover,.note:focus{transform:translateY(-2px);box-shadow:0 3px 10px #0003}
+.bits{font:700 1.05rem ui-monospace,SFMono-Regular,Menlo,monospace}.pitch{font-size:1.15rem;font-weight:700;margin-top:5px}
+.alias{font-size:.8rem;opacity:.8}.dec{font-size:.78rem;opacity:.65}
+textarea{width:100%;box-sizing:border-box;min-height:95px;padding:12px;font-family:ui-monospace,monospace}
+.action{margin:10px 8px 0 0;cursor:pointer}#status{font-weight:600;margin-top:12px;min-height:1.4em}
+table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:7px;text-align:center}.small{font-size:.9rem;opacity:.75}
+@media(max-width:800px){.keyboard{grid-template-columns:repeat(4,1fr)}}
+</style></head>
+<body>
+<h1>Binary MIDI Music Lab — 5 Octaves</h1>
+<p class="subtitle"><strong>MIDI note numbers → real-world pitch values → shown as 7-bit binary</strong></p>
+<div class="idea">
+This version uses <strong>standard MIDI note numbers</strong> for pitch. Each MIDI value is shown in decimal and as a 7-bit binary number. Black tiles are pitches that can be named as either a <strong>sharp</strong> or a <strong>flat</strong>. For example, C♯ and D♭ share the same MIDI pitch value.
+</div>
+
+<section>
+<div class="controls"><label><strong>Choose octave:</strong> <select id="octave"></select></label>
+<button id="lower">← Lower Octave</button><button id="higher">Higher Octave →</button></div>
+<div class="keyboard" id="keyboard"></div>
+<p class="small">Each octave contains 12 distinct pitches: C, C♯/D♭, D, D♯/E♭, E, F, F♯/G♭, G, G♯/A♭, A, A♯/B♭, B.</p>
+</section>
+
+<section>
+<h2>Decode and Play a Binary Melody</h2>
+<p>Enter 7-bit MIDI note codes separated by spaces or commas.</p>
+<textarea id="sequence">0111100 0111100 1000011 1000011 1000101 1000101 1000011</textarea><br>
+<button class="action" id="play">▶ Play Melody</button><button class="action" id="stop">■ Stop</button><button class="action" id="clear">Clear</button>
+<div id="status"></div>
+</section>
+
+<section>
+<h2>Encoding Table</h2>
+<p class="small">This table uses MIDI note numbers 36–95 (C2 through B6). MIDI note numbers use the range 0–127, which fits in 7 bits. Enharmonic spellings such as C♯ and D♭ share one MIDI number because they represent the same pitch in equal temperament.</p>
+<table><thead><tr><th>Binary</th><th>MIDI Decimal</th><th>Note</th><th>Also Called</th></tr></thead><tbody id="key"></tbody></table>
+</section>
+
+<script>
+const pitchData=[
+ ["C",""],["C♯","D♭"],["D",""],["D♯","E♭"],["E",""],["F",""],
+ ["F♯","G♭"],["G",""],["G♯","A♭"],["A",""],["A♯","B♭"],["B",""]
+];
+const notes=[];
+for(let i=0;i<60;i++){
+ const oct=2+Math.floor(i/12), p=i%12, midi=36+i;
+ notes.push({dec:midi,bits:midi.toString(2).padStart(7,"0"),
+ name:pitchData[p][0]+oct, alias:pitchData[p][1]?(pitchData[p][1]+oct):"",
+ freq:440*Math.pow(2,(midi-69)/12), accidental:!!pitchData[p][1]});
+}
+const map=Object.fromEntries(notes.map(n=>[n.bits,n]));
+let ctx,stopped=false,active=[];
+function audio(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();return ctx}
+function tone(freq,d=.45){const c=audio(),o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=freq;
+g.gain.setValueAtTime(.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(.2,c.currentTime+.015);
+g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d+.02);active.push(o)}
+const octave=document.getElementById("octave");
+for(let o=2;o<=6;o++){const op=document.createElement("option");op.value=o;op.textContent="Octave "+o;octave.appendChild(op)} octave.value=4;
+function render(){const o=+octave.value,start=(o-2)*12,k=document.getElementById("keyboard");k.innerHTML="";
+ notes.slice(start,start+12).forEach(n=>{const b=document.createElement("button");b.className="note"+(n.accidental?" accidental":"");
+ b.innerHTML=`<div class="bits">${n.bits}</div><div class="dec">MIDI ${n.dec}</div><div class="pitch">${n.name}</div>${n.alias?`<div class="alias">= ${n.alias}</div>`:""}`;
+ b.onclick=()=>tone(n.freq,.55);k.appendChild(b)})}
+octave.onchange=render;
+document.getElementById("lower").onclick=()=>{if(+octave.value>2){octave.value=+octave.value-1;render()}};
+document.getElementById("higher").onclick=()=>{if(+octave.value<6){octave.value=+octave.value+1;render()}};
+notes.forEach(n=>document.getElementById("key").insertAdjacentHTML("beforeend",
+`<tr><td><code>${n.bits}</code></td><td>${n.dec}</td><td>${n.name}</td><td>${n.alias||"—"}</td></tr>`));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+document.getElementById("play").onclick=async()=>{stopped=false;const codes=document.getElementById("sequence").value.trim().split(/[\s,]+/).filter(Boolean);
+const bad=codes.filter(x=>!map[x]),s=document.getElementById("status");if(!codes.length){s.textContent="Enter at least one 6-bit code.";return}
+if(bad.length){s.textContent="Unused or invalid code(s): "+[...new Set(bad)].join(", ")+" — for this five-octave lab, valid MIDI codes run from 0100100 (C2) through 1011111 (B6).";return}
+s.textContent="Decoded: "+codes.map(x=>map[x].name).join("  ");for(const code of codes){if(stopped)break;tone(map[code].freq,.36);await sleep(440)}};
+document.getElementById("stop").onclick=()=>{stopped=true;active.forEach(o=>{try{o.stop()}catch(e){}});active=[];document.getElementById("status").textContent="Stopped."};
+document.getElementById("clear").onclick=()=>{document.getElementById("sequence").value="";document.getElementById("status").textContent=""};
+render();
+</script></body></html>
