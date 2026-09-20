@@ -1,87 +1,1018 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Binary MIDI Music Lab — 5 Octaves</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary MIDI Music Lab</title>
+
 <style>
-:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body{max-width:1180px;margin:auto;padding:26px;background:#f6f6f6;color:#171717}
-h1{margin-bottom:4px}.subtitle{margin-top:0;font-size:1.1rem}
-.idea,section{background:#fff;border-radius:12px;padding:18px;margin:20px 0}.idea{border:2px solid #222}
-.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}select,button,textarea{font:inherit}
-select,button{padding:9px 12px}.keyboard{display:grid;grid-template-columns:repeat(7,1fr);gap:9px;margin-top:15px}
-.note{background:#fff;border:2px solid #222;border-radius:10px;padding:12px 5px;cursor:pointer;min-height:100px}
-.note.accidental{background:#222;color:#fff}.note:hover,.note:focus{transform:translateY(-2px);box-shadow:0 3px 10px #0003}
-.bits{font:700 1.05rem ui-monospace,SFMono-Regular,Menlo,monospace}.pitch{font-size:1.15rem;font-weight:700;margin-top:5px}
-.alias{font-size:.8rem;opacity:.8}.dec{font-size:.78rem;opacity:.65}
-textarea{width:100%;box-sizing:border-box;min-height:95px;padding:12px;font-family:ui-monospace,monospace}
-.action{margin:10px 8px 0 0;cursor:pointer}#status{font-weight:600;margin-top:12px;min-height:1.4em}
-table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:7px;text-align:center}.small{font-size:.9rem;opacity:.75}
-@media(max-width:800px){.keyboard{grid-template-columns:repeat(4,1fr)}}
-</style></head>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #f4f6f8;
+        color: #222;
+    }
+
+    header {
+        background: #183153;
+        color: white;
+        padding: 22px;
+        text-align: center;
+    }
+
+    header h1 {
+        margin: 0 0 6px;
+    }
+
+    header p {
+        margin: 0;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 25px auto;
+        padding: 0 20px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.10);
+    }
+
+    h2 {
+        margin-top: 0;
+        color: #183153;
+    }
+
+    .student-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #aaa;
+        border-radius: 5px;
+    }
+
+    .octave-controls {
+        text-align: center;
+        margin-bottom: 18px;
+    }
+
+    button {
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 15px;
+        font-size: 15px;
+    }
+
+    .control-button {
+        background: #183153;
+        color: white;
+        margin: 4px;
+    }
+
+    .control-button:hover {
+        background: #284c7a;
+    }
+
+    .octave-label {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0 15px;
+    }
+
+    .notes {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 10px;
+    }
+
+    .note {
+        background: white;
+        color: #222;
+        border: 2px solid #183153;
+        min-height: 92px;
+        padding: 8px;
+    }
+
+    .note:hover {
+        background: #eaf1f8;
+    }
+
+    .note.accidental {
+        background: #333;
+        color: white;
+        border-color: #111;
+    }
+
+    .note.accidental:hover {
+        background: #555;
+    }
+
+    .note-name {
+        font-size: 19px;
+        font-weight: bold;
+    }
+
+    .binary {
+        font-family: monospace;
+        font-size: 15px;
+        margin-top: 5px;
+    }
+
+    .decimal {
+        font-size: 12px;
+        margin-top: 4px;
+        opacity: .8;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 12px;
+        font-family: monospace;
+        font-size: 17px;
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        resize: vertical;
+    }
+
+    .button-row {
+        margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .play {
+        background: #198754;
+        color: white;
+    }
+
+    .stop {
+        background: #dc3545;
+        color: white;
+    }
+
+    .clear {
+        background: #6c757d;
+        color: white;
+    }
+
+    .save {
+        background: #0d6efd;
+        color: white;
+    }
+
+    .load {
+        background: #6f42c1;
+        color: white;
+    }
+
+    .status {
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    .error {
+        color: #b00020;
+    }
+
+    .success {
+        color: #137333;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border-bottom: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background: #183153;
+        color: white;
+        position: sticky;
+        top: 0;
+    }
+
+    .table-wrapper {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .explanation {
+        background: #eef5ff;
+        border-left: 5px solid #183153;
+        padding: 12px;
+        margin-top: 12px;
+    }
+
+    @media (max-width: 750px) {
+        .notes {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .student-info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</head>
+
 <body>
-<h1>Binary MIDI Music Lab — 5 Octaves</h1>
-<p class="subtitle"><strong>MIDI note numbers → real-world pitch values → shown as 7-bit binary</strong></p>
-<div class="idea">
-This version uses <strong>standard MIDI note numbers</strong> for pitch. Each MIDI value is shown in decimal and as a 7-bit binary number. Black tiles are pitches that can be named as either a <strong>sharp</strong> or a <strong>flat</strong>. For example, C♯ and D♭ share the same MIDI pitch value.
+
+<header>
+    <h1>Binary MIDI Music Lab</h1>
+    <p>Explore how computers represent musical pitches using binary.</p>
+</header>
+
+<div class="container">
+
+    <!-- STUDENT INFORMATION -->
+    <div class="card">
+        <h2>Your Project</h2>
+
+        <div class="student-info">
+            <div>
+                <label for="studentName">Student Name</label>
+                <input type="text" id="studentName"
+                       placeholder="Enter your name">
+            </div>
+
+            <div>
+                <label for="songTitle">Song Title</label>
+                <input type="text" id="songTitle"
+                       placeholder="Enter a title">
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTE PLAYER -->
+    <div class="card">
+
+        <h2>Explore the Notes</h2>
+
+        <p>
+            Each pitch has a standard <strong>MIDI note number</strong>.
+            The number is displayed below in <strong>7-bit binary</strong>.
+        </p>
+
+        <div class="octave-controls">
+
+            <button class="control-button"
+                    onclick="changeOctave(-1)">
+                ◀ Lower Octave
+            </button>
+
+            <span class="octave-label"
+                  id="octaveLabel">
+                Octave 4
+            </span>
+
+            <button class="control-button"
+                    onclick="changeOctave(1)">
+                Higher Octave ▶
+            </button>
+
+        </div>
+
+        <div class="notes" id="notes"></div>
+
+        <div class="explanation">
+            MIDI note numbers range from 0–127.
+            That gives 128 possible values, so a MIDI note number
+            can be represented using <strong>7 bits</strong>.
+        </div>
+
+    </div>
+
+    <!-- COMPOSER -->
+    <div class="card">
+
+        <h2>Binary Composer</h2>
+
+        <p>
+            Click notes above to add them to your composition,
+            or type 7-bit MIDI codes separated by spaces.
+        </p>
+
+        <textarea id="melody">
+0111100 0111100 1000011 1000011 1000101 1000101 1000011
+        </textarea>
+
+        <div class="button-row">
+
+            <button class="play"
+                    onclick="playMelody()">
+                ▶ Play
+            </button>
+
+            <button class="stop"
+                    onclick="stopMelody()">
+                ■ Stop
+            </button>
+
+            <button class="clear"
+                    onclick="clearMelody()">
+                Clear
+            </button>
+
+            <button class="save"
+                    onclick="saveProject()">
+                Save Project
+            </button>
+
+            <button class="load"
+                    onclick="document.getElementById('fileInput').click()">
+                Load Project
+            </button>
+
+            <input type="file"
+                   id="fileInput"
+                   accept=".txt"
+                   style="display:none"
+                   onchange="loadProject(event)">
+
+        </div>
+
+        <div id="status" class="status"></div>
+
+    </div>
+
+    <!-- MIDI TABLE -->
+    <div class="card">
+
+        <h2>MIDI Encoding Table</h2>
+
+        <p>
+            This lab uses MIDI notes from
+            <strong>C2 through B6</strong>.
+        </p>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Binary</th>
+                        <th>MIDI Decimal</th>
+                        <th>Note</th>
+                        <th>Also Called</th>
+                    </tr>
+                </thead>
+
+                <tbody id="midiTable"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
 </div>
 
-<section>
-<div class="controls"><label><strong>Choose octave:</strong> <select id="octave"></select></label>
-<button id="lower">← Lower Octave</button><button id="higher">Higher Octave →</button></div>
-<div class="keyboard" id="keyboard"></div>
-<p class="small">Each octave contains 12 distinct pitches: C, C♯/D♭, D, D♯/E♭, E, F, F♯/G♭, G, G♯/A♭, A, A♯/B♭, B.</p>
-</section>
-
-<section>
-<h2>Decode and Play a Binary Melody</h2>
-<p>Enter 7-bit MIDI note codes separated by spaces or commas.</p>
-<textarea id="sequence">0111100 0111100 1000011 1000011 1000101 1000101 1000011</textarea><br>
-<button class="action" id="play">▶ Play Melody</button><button class="action" id="stop">■ Stop</button><button class="action" id="clear">Clear</button>
-<div id="status"></div>
-</section>
-
-<section>
-<h2>Encoding Table</h2>
-<p class="small">This table uses MIDI note numbers 36–95 (C2 through B6). MIDI note numbers use the range 0–127, which fits in 7 bits. Enharmonic spellings such as C♯ and D♭ share one MIDI number because they represent the same pitch in equal temperament.</p>
-<table><thead><tr><th>Binary</th><th>MIDI Decimal</th><th>Note</th><th>Also Called</th></tr></thead><tbody id="key"></tbody></table>
-</section>
 
 <script>
-const pitchData=[
- ["C",""],["C♯","D♭"],["D",""],["D♯","E♭"],["E",""],["F",""],
- ["F♯","G♭"],["G",""],["G♯","A♭"],["A",""],["A♯","B♭"],["B",""]
+
+/* -----------------------------
+   NOTE INFORMATION
+----------------------------- */
+
+const noteNames = [
+    ["C", ""],
+    ["C♯", "D♭"],
+    ["D", ""],
+    ["D♯", "E♭"],
+    ["E", ""],
+    ["F", ""],
+    ["F♯", "G♭"],
+    ["G", ""],
+    ["G♯", "A♭"],
+    ["A", ""],
+    ["A♯", "B♭"],
+    ["B", ""]
 ];
-const notes=[];
-for(let i=0;i<60;i++){
- const oct=2+Math.floor(i/12), p=i%12, midi=36+i;
- notes.push({dec:midi,bits:midi.toString(2).padStart(7,"0"),
- name:pitchData[p][0]+oct, alias:pitchData[p][1]?(pitchData[p][1]+oct):"",
- freq:440*Math.pow(2,(midi-69)/12), accidental:!!pitchData[p][1]});
+
+let currentOctave = 4;
+
+let audioContext = null;
+let activeOscillators = [];
+let stopRequested = false;
+
+
+/* -----------------------------
+   MIDI FUNCTIONS
+----------------------------- */
+
+function midiToBinary(midi) {
+
+    return midi
+        .toString(2)
+        .padStart(7, "0");
 }
-const map=Object.fromEntries(notes.map(n=>[n.bits,n]));
-let ctx,stopped=false,active=[];
-function audio(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();return ctx}
-function tone(freq,d=.45){const c=audio(),o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=freq;
-g.gain.setValueAtTime(.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(.2,c.currentTime+.015);
-g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d+.02);active.push(o)}
-const octave=document.getElementById("octave");
-for(let o=2;o<=6;o++){const op=document.createElement("option");op.value=o;op.textContent="Octave "+o;octave.appendChild(op)} octave.value=4;
-function render(){const o=+octave.value,start=(o-2)*12,k=document.getElementById("keyboard");k.innerHTML="";
- notes.slice(start,start+12).forEach(n=>{const b=document.createElement("button");b.className="note"+(n.accidental?" accidental":"");
- b.innerHTML=`<div class="bits">${n.bits}</div><div class="dec">MIDI ${n.dec}</div><div class="pitch">${n.name}</div>${n.alias?`<div class="alias">= ${n.alias}</div>`:""}`;
- b.onclick=()=>tone(n.freq,.55);k.appendChild(b)})}
-octave.onchange=render;
-document.getElementById("lower").onclick=()=>{if(+octave.value>2){octave.value=+octave.value-1;render()}};
-document.getElementById("higher").onclick=()=>{if(+octave.value<6){octave.value=+octave.value+1;render()}};
-notes.forEach(n=>document.getElementById("key").insertAdjacentHTML("beforeend",
-`<tr><td><code>${n.bits}</code></td><td>${n.dec}</td><td>${n.name}</td><td>${n.alias||"—"}</td></tr>`));
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-document.getElementById("play").onclick=async()=>{stopped=false;const codes=document.getElementById("sequence").value.trim().split(/[\s,]+/).filter(Boolean);
-const bad=codes.filter(x=>!map[x]),s=document.getElementById("status");if(!codes.length){s.textContent="Enter at least one 6-bit code.";return}
-if(bad.length){s.textContent="Unused or invalid code(s): "+[...new Set(bad)].join(", ")+" — for this five-octave lab, valid MIDI codes run from 0100100 (C2) through 1011111 (B6).";return}
-s.textContent="Decoded: "+codes.map(x=>map[x].name).join("  ");for(const code of codes){if(stopped)break;tone(map[code].freq,.36);await sleep(440)}};
-document.getElementById("stop").onclick=()=>{stopped=true;active.forEach(o=>{try{o.stop()}catch(e){}});active=[];document.getElementById("status").textContent="Stopped."};
-document.getElementById("clear").onclick=()=>{document.getElementById("sequence").value="";document.getElementById("status").textContent=""};
-render();
-</script></body></html>
+
+
+function midiToFrequency(midi) {
+
+    return 440 *
+        Math.pow(2, (midi - 69) / 12);
+}
+
+
+/* -----------------------------
+   DISPLAY NOTES
+----------------------------- */
+
+function renderNotes() {
+
+    const notesDiv =
+        document.getElementById("notes");
+
+    notesDiv.innerHTML = "";
+
+    document.getElementById(
+        "octaveLabel"
+    ).textContent =
+        "Octave " + currentOctave;
+
+
+    for (let semitone = 0;
+         semitone < 12;
+         semitone++) {
+
+        const midi =
+            12 * (currentOctave + 1)
+            + semitone;
+
+        const binary =
+            midiToBinary(midi);
+
+        const note =
+            noteNames[semitone];
+
+        const button =
+            document.createElement("button");
+
+        button.className = "note";
+
+        if ([1,3,6,8,10].includes(semitone)) {
+            button.classList.add("accidental");
+        }
+
+        let displayName =
+            note[0] + currentOctave;
+
+        if (note[1]) {
+            displayName +=
+                "<br><small>" +
+                note[1] +
+                currentOctave +
+                "</small>";
+        }
+
+        button.innerHTML =
+
+            '<div class="note-name">' +
+            displayName +
+            '</div>' +
+
+            '<div class="binary">' +
+            binary +
+            '</div>' +
+
+            '<div class="decimal">' +
+            'MIDI ' +
+            midi +
+            '</div>';
+
+
+        button.onclick = function() {
+
+            playNote(midi, 0.45);
+
+            addNoteToMelody(binary);
+
+        };
+
+
+        notesDiv.appendChild(button);
+    }
+}
+
+
+/* -----------------------------
+   OCTAVE CONTROLS
+----------------------------- */
+
+function changeOctave(change) {
+
+    currentOctave += change;
+
+    if (currentOctave < 2) {
+        currentOctave = 2;
+    }
+
+    if (currentOctave > 6) {
+        currentOctave = 6;
+    }
+
+    renderNotes();
+}
+
+
+/* -----------------------------
+   AUDIO
+----------------------------- */
+
+function getAudioContext() {
+
+    if (!audioContext) {
+
+        audioContext =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+    }
+
+    return audioContext;
+}
+
+
+function playNote(midi, duration = 0.45) {
+
+    const ctx = getAudioContext();
+
+    const oscillator =
+        ctx.createOscillator();
+
+    const gain =
+        ctx.createGain();
+
+    oscillator.type = "sine";
+
+    oscillator.frequency.value =
+        midiToFrequency(midi);
+
+    gain.gain.setValueAtTime(
+        0.25,
+        ctx.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        ctx.currentTime + duration
+    );
+
+    oscillator.connect(gain);
+
+    gain.connect(ctx.destination);
+
+    oscillator.start();
+
+    oscillator.stop(
+        ctx.currentTime + duration
+    );
+
+    activeOscillators.push(oscillator);
+
+    oscillator.onended = function() {
+
+        activeOscillators =
+            activeOscillators.filter(
+                osc => osc !== oscillator
+            );
+    };
+}
+
+
+/* -----------------------------
+   ADD NOTES TO COMPOSITION
+----------------------------- */
+
+function addNoteToMelody(binary) {
+
+    const melody =
+        document.getElementById("melody");
+
+    const current =
+        melody.value.trim();
+
+    if (current.length === 0) {
+
+        melody.value = binary;
+
+    } else {
+
+        melody.value =
+            current + " " + binary;
+    }
+}
+
+
+/* -----------------------------
+   PLAY COMPOSITION
+----------------------------- */
+
+function sleep(ms) {
+
+    return new Promise(
+        resolve => setTimeout(resolve, ms)
+    );
+}
+
+
+async function playMelody() {
+
+    stopMelody();
+
+    stopRequested = false;
+
+    const status =
+        document.getElementById("status");
+
+    status.className = "status";
+
+    const text =
+        document
+        .getElementById("melody")
+        .value
+        .trim();
+
+    if (!text) {
+
+        status.textContent =
+            "Enter some binary notes first.";
+
+        status.classList.add("error");
+
+        return;
+    }
+
+
+    const codes =
+        text.split(/[\s,]+/);
+
+
+    for (let code of codes) {
+
+        if (stopRequested) {
+            break;
+        }
+
+        if (!/^[01]{7}$/.test(code)) {
+
+            status.textContent =
+                "Invalid code: " +
+                code +
+                ". Use 7-bit binary values.";
+
+            status.classList.add("error");
+
+            return;
+        }
+
+
+        const midi =
+            parseInt(code, 2);
+
+
+        if (midi < 36 || midi > 95) {
+
+            status.textContent =
+                "This lab uses MIDI notes 36–95 " +
+                "(C2 through B6).";
+
+            status.classList.add("error");
+
+            return;
+        }
+
+
+        playNote(midi, 0.42);
+
+        await sleep(500);
+    }
+
+
+    if (!stopRequested) {
+
+        status.textContent =
+            "Finished playing.";
+
+        status.classList.add("success");
+    }
+}
+
+
+/* -----------------------------
+   STOP
+----------------------------- */
+
+function stopMelody() {
+
+    stopRequested = true;
+
+    activeOscillators.forEach(
+        oscillator => {
+
+            try {
+                oscillator.stop();
+            } catch (e) {}
+        }
+    );
+
+    activeOscillators = [];
+}
+
+
+/* -----------------------------
+   CLEAR
+----------------------------- */
+
+function clearMelody() {
+
+    stopMelody();
+
+    document.getElementById(
+        "melody"
+    ).value = "";
+
+    document.getElementById(
+        "status"
+    ).textContent = "";
+}
+
+
+/* -----------------------------
+   SAVE PROJECT
+----------------------------- */
+
+function saveProject() {
+
+    const student =
+        document
+        .getElementById("studentName")
+        .value
+        .trim();
+
+    const title =
+        document
+        .getElementById("songTitle")
+        .value
+        .trim();
+
+    const melody =
+        document
+        .getElementById("melody")
+        .value
+        .trim();
+
+
+    const projectText =
+
+`BINARY MIDI MUSIC LAB
+Student: ${student}
+Song Title: ${title}
+
+MIDI BINARY:
+${melody}
+`;
+
+
+    const blob =
+        new Blob(
+            [projectText],
+            { type: "text/plain" }
+        );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const link =
+        document.createElement("a");
+
+
+    let fileName =
+        title || "midi-project";
+
+
+    fileName =
+        fileName
+        .replace(/[^a-z0-9]/gi, "-")
+        .toLowerCase();
+
+
+    link.href = url;
+
+    link.download =
+        fileName + ".txt";
+
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+
+    const status =
+        document.getElementById("status");
+
+    status.textContent =
+        "Project saved.";
+
+    status.className =
+        "status success";
+}
+
+
+/* -----------------------------
+   LOAD PROJECT
+----------------------------- */
+
+function loadProject(event) {
+
+    const file =
+        event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload = function(e) {
+
+        const text =
+            e.target.result;
+
+
+        const studentMatch =
+            text.match(
+                /Student:\s*(.*)/
+            );
+
+
+        const titleMatch =
+            text.match(
+                /Song Title:\s*(.*)/
+            );
+
+
+        const melodyMatch =
+            text.match(
+                /MIDI BINARY:\s*([\s\S]*)/
+            );
+
+
+        if (studentMatch) {
+
+            document
+            .getElementById("studentName")
+            .value =
+                studentMatch[1].trim();
+        }
+
+
+        if (titleMatch) {
+
+            document
+            .getElementById("songTitle")
+            .value =
+                titleMatch[1].trim();
+        }
+
+
+        if (melodyMatch) {
+
+            document
+            .getElementById("melody")
+            .value =
+                melodyMatch[1].trim();
+        }
+
+
+        const status =
+            document.getElementById("status");
+
+        status.textContent =
+            "Project loaded successfully.";
+
+        status.className =
+            "status success";
+    };
+
+
+    reader.readAsText(file);
+
+    event.target.value = "";
+}
+
+
+/* -----------------------------
+   BUILD MIDI TABLE
+----------------------------- */
+
+function buildMidiTable() {
+
+    const tbody =
+        document.getElementById(
+            "midiTable"
+        );
+
+
+    for (let midi = 36;
+         midi <= 95;
+         midi++) {
+
+        const semitone =
+            midi % 12;
+
+        const octave =
+            Math.floor(midi / 12) - 1;
+
+        const note =
+            noteNames[semitone];
+
+        const row =
+            document.createElement("tr");
+
+
+        const binary =
+            midiToBinary(midi);
+
+
+        row.innerHTML =
+
+            "<td><code>" +
+            binary +
+            "</code></td>" +
+
+            "<td>" +
+            midi +
+            "</td>" +
+
+            "<td>" +
+            note[0] +
+            octave +
+            "</td>" +
+
+            "<td>" +
+            (
+                note[1]
+                ? note[1] + octave
+                : "—"
+            ) +
+            "</td>";
+
+
+        tbody.appendChild(row);
+    }
+}
+
+
+/* -----------------------------
+   START PAGE
+----------------------------- */
+
+renderNotes();
+
+buildMidiTable();
+
+</script>
+
+</body>
+</html>
